@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+    
+    <EditText
+        android:id="@+id/etNote"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:hint="Введите заметку..."
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:maxLength="1048576" />
+    
+    <Button
+        android:id="@+id/btnTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tag"
+        android:layout_marginTop="8dp" />
+    
+    <TextView
+        android:id="@+id/tvTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tag не задан"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

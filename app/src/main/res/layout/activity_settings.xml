@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        
+        <EditText
+            android:id="@+id/etUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ваше имя"
+            android:layout_marginBottom="8dp" />
+        
+        <EditText
+            android:id="@+id/etPinCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Пин-код (4 цифры)"
+            android:inputType="numberPassword"
+            android:layout_marginBottom="16dp" />
+        
+        <EditText
+            android:id="@+id/etStorageFolder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Имя папки на Смартфоне"
+            android:layout_marginBottom="16dp" />
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Настройки сервера (опционально)"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+        
+        <EditText
+            android:id="@+id/etServerIp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="IP-адрес сервера"
+            android:layout_marginBottom="8dp" />
+        
+        <EditText
+            android:id="@+id/etServerLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Логин сервера"
+            android:layout_marginBottom="8dp" />
+        
+        <EditText
+            android:id="@+id/etServerPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Пароль сервера"
+            android:inputType="textPassword"
+            android:layout_marginBottom="8dp" />
+        
+        <EditText
+            android:id="@+id/etServerFolder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Имя папки на сервере"
+            android:layout_marginBottom="16dp" />
+        
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Сохранить"
+            android:layout_marginBottom="8dp" />
+        
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Удалить"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_marginBottom="8dp" />
+        
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Назад"
+            style="?attr/materialButtonOutlinedStyle" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+    
+    <Button
+        android:id="@+id/btnCreateNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Создать заметку"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.Button" />
+    
+    <Button
+        android:id="@+id/btnSavedNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Сохраненные заметки"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.Button" />
+    
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Настройки"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.Button" />
+    
+    <Button
+        android:id="@+id/btnExit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Закрыть приложение"
+        style="@style/Widget.Material3.Button" />
+</LinearLayout>
