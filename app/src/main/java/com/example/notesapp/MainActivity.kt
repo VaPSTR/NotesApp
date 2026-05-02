@@ -121,6 +121,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         
         findViewById<Button>(R.id.btnCreateNote).setOnClickListener {
+            currentTag = ""
             showCreateNoteScreen()
         }
         
@@ -138,11 +139,12 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun showCreateNoteScreen() {
-        currentTag = ""
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_note, null)
         val etNote = dialogView.findViewById<EditText>(R.id.etNote)
         val btnTag = dialogView.findViewById<Button>(R.id.btnTag)
         val tvTag = dialogView.findViewById<TextView>(R.id.tvTag)
+        
+        tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
         
         btnTag.setOnClickListener {
             showTagInputDialog { tag ->
@@ -155,13 +157,13 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Создать заметку")
             .setView(dialogView)
             .setPositiveButton("Сохранить") { _, _ ->
-                saveNote(etNote.text.toString(), currentTag)
+                saveNote(etNote.text.toString())
             }
             .setNegativeButton("Отмена", null)
             .show()
     }
     
-    private fun saveNote(content: String, tag: String) {
+    private fun saveNote(content: String) {
         if (content.isBlank()) {
             Toast.makeText(this, "Заметка не может быть пустой", Toast.LENGTH_SHORT).show()
             return
@@ -181,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val settings = db.settingsDao().getSettings()
             val folderName = "Documents/${settings?.storageFolder ?: "Notes"}"
-            val finalTag = if (tag.isBlank()) "БезТега" else tag
+            val finalTag = if (currentTag.isBlank()) "БезТега" else currentTag
             val fileName = FileManager.generateFileName(finalTag, content)
             
             val fileResult = FileManager.saveNote(this@MainActivity, folderName, fileName, content)
@@ -197,11 +199,12 @@ class MainActivity : AppCompatActivity() {
                 )
                 db.noteDao().insertNote(note)
                 
-                if (!settings?.serverIp.isNullOrBlank() &&
-                    !settings?.serverLogin.isNullOrBlank() &&
-                    !settings?.serverPassword.isNullOrBlank()
+                if (settings != null && 
+                    !settings.serverIp.isNullOrBlank() &&
+                    !settings.serverLogin.isNullOrBlank() &&
+                    !settings.serverPassword.isNullOrBlank()
                 ) {
-                    copyToServer(fileName, content, settings!!, note)
+                    copyToServer(fileName, content, settings, note)
                 } else {
                     Toast.makeText(this@MainActivity, "Заметка сохранена в Смартфоне", Toast.LENGTH_SHORT).show()
                     showMainMenu()
@@ -221,7 +224,8 @@ class MainActivity : AppCompatActivity() {
         
         if (connection.isSuccess) {
             val remotePath = "${settings.serverFolder}/$fileName"
-            val localFile = FileManager.saveNote(this, "Documents/${settings.storageFolder}", fileName, content).getOrNull()
+            val folderName = "Documents/${settings.storageFolder}"
+            val localFile = FileManager.saveNote(this, folderName, fileName, content).getOrNull()
             
             if (localFile != null) {
                 val upload = sshClient.uploadFile(localFile, remotePath)
@@ -248,6 +252,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 note.isCopiedToServer = false
                 db.noteDao().updateNote(note)
+                currentTag = note.tag
                 showCreateNoteScreen()
             }
         }
@@ -273,7 +278,7 @@ class MainActivity : AppCompatActivity() {
     private fun startCopyToServer() {
         lifecycleScope.launch {
             val settings = db.settingsDao().getSettings()
-            if (settings?.serverIp.isNullOrBlank()) {
+            if (settings == null || settings.serverIp.isNullOrBlank()) {
                 Toast.makeText(this@MainActivity, "Настройки сервера не заданы", Toast.LENGTH_SHORT).show()
                 return@launch
             }
@@ -295,9 +300,10 @@ class MainActivity : AppCompatActivity() {
             if (connection.isSuccess) {
                 var successCount = 0
                 for (note in notesToCopy) {
+                    val folderName = "Documents/${settings.storageFolder}"
                     val localFile = FileManager.saveNote(
                         this@MainActivity,
-                        "Documents/${settings.storageFolder}",
+                        folderName,
                         note.fileName,
                         note.content
                     ).getOrNull()
@@ -329,14 +335,14 @@ class MainActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             val settings = db.settingsDao().getSettings()
-            if (settings != null) {
-                findViewById<EditText>(R.id.etUserName).setText(settings.userName)
-                findViewById<EditText>(R.id.etPinCode).setText(settings.pinCode)
-                findViewById<EditText>(R.id.etStorageFolder).setText(settings.storageFolder)
-                findViewById<EditText>(R.id.etServerIp).setText(settings.serverIp)
-                findViewById<EditText>(R.id.etServerLogin).setText(settings.serverLogin)
-                findViewById<EditText>(R.id.etServerPassword).setText(settings.serverPassword)
-                findViewById<EditText>(R.id.etServerFolder).setText(settings.serverFolder)
+            settings?.let {
+                findViewById<EditText>(R.id.etUserName).setText(it.userName)
+                findViewById<EditText>(R.id.etPinCode).setText(it.pinCode)
+                findViewById<EditText>(R.id.etStorageFolder).setText(it.storageFolder)
+                findViewById<EditText>(R.id.etServerIp).setText(it.serverIp)
+                findViewById<EditText>(R.id.etServerLogin).setText(it.serverLogin)
+                findViewById<EditText>(R.id.etServerPassword).setText(it.serverPassword)
+                findViewById<EditText>(R.id.etServerFolder).setText(it.serverFolder)
             }
         }
         
