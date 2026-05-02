@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sshClient: SSHClient
     private var currentPinAttempts = 0
     private var currentTag = ""
+    private var editingNote: Note? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,6 +123,7 @@ class MainActivity : AppCompatActivity() {
         
         findViewById<Button>(R.id.btnCreateNote).setOnClickListener {
             currentTag = ""
+            editingNote = null
             showCreateNoteScreen()
         }
         
@@ -144,7 +146,13 @@ class MainActivity : AppCompatActivity() {
         val btnTag = dialogView.findViewById<Button>(R.id.btnTag)
         val tvTag = dialogView.findViewById<TextView>(R.id.tvTag)
         
-        tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
+        if (editingNote != null) {
+            etNote.setText(editingNote?.content)
+            currentTag = editingNote?.tag ?: ""
+            tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
+        } else {
+            tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
+        }
         
         btnTag.setOnClickListener {
             showTagInputDialog { tag ->
@@ -154,7 +162,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         AlertDialog.Builder(this)
-            .setTitle("Создать заметку")
+            .setTitle(if (editingNote == null) "Создать заметку" else "Редактировать заметку")
             .setView(dialogView)
             .setPositiveButton("Сохранить") { _, _ ->
                 saveNote(etNote.text.toString())
@@ -197,12 +205,17 @@ class MainActivity : AppCompatActivity() {
                     isCopiedToServer = false,
                     savedAt = now
                 )
-                db.noteDao().insertNote(note)
+                
+                if (editingNote != null) {
+                    db.noteDao().updateNote(note)
+                } else {
+                    db.noteDao().insertNote(note)
+                }
                 
                 if (settings != null && 
-                    !settings.serverIp.isNullOrBlank() &&
-                    !settings.serverLogin.isNullOrBlank() &&
-                    !settings.serverPassword.isNullOrBlank()
+                    settings.serverIp.isNotBlank() &&
+                    settings.serverLogin.isNotBlank() &&
+                    settings.serverPassword.isNotBlank()
                 ) {
                     copyToServer(fileName, content, settings, note)
                 } else {
@@ -249,12 +262,9 @@ class MainActivity : AppCompatActivity() {
         
         val notesList = mutableListOf<Note>()
         val adapter = NoteAdapter(notesList) { note ->
-            lifecycleScope.launch {
-                note.isCopiedToServer = false
-                db.noteDao().updateNote(note)
-                currentTag = note.tag
-                showCreateNoteScreen()
-            }
+            editingNote = note
+            currentTag = note.tag
+            showCreateNoteScreen()
         }
         rvNotes.adapter = adapter
         
@@ -278,7 +288,7 @@ class MainActivity : AppCompatActivity() {
     private fun startCopyToServer() {
         lifecycleScope.launch {
             val settings = db.settingsDao().getSettings()
-            if (settings == null || settings.serverIp.isNullOrBlank()) {
+            if (settings == null || settings.serverIp.isBlank()) {
                 Toast.makeText(this@MainActivity, "Настройки сервера не заданы", Toast.LENGTH_SHORT).show()
                 return@launch
             }
