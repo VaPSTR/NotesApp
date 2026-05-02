@@ -13,7 +13,7 @@
         android:requestLegacyExternalStorage="true">
         
         <activity
-            android:name=".activities.MainActivityNew"
+            android:name=".activities.MainActivityFixed"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
