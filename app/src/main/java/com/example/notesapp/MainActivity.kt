@@ -138,6 +138,7 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun showCreateNoteScreen() {
+        currentTag = ""
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_note, null)
         val etNote = dialogView.findViewById<EditText>(R.id.etNote)
         val btnTag = dialogView.findViewById<Button>(R.id.btnTag)
