@@ -1,4 +1,4 @@
-package com.example.notesapp
+package com.example.notesapp.activities
 
 import android.os.Bundle
 import android.widget.*
@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.notesapp.R
 import com.example.notesapp.data.*
 import com.example.notesapp.network.SSHClient
 import com.example.notesapp.utils.FileManager
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivityNew : AppCompatActivity() {
     private lateinit var db: AppDatabase
     private lateinit var sshClient: SSHClient
     private var currentPinAttempts = 0
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity() {
                             finishAffinity()
                         } else {
                             Toast.makeText(
-                                this@MainActivity,
+                                this@MainActivityNew,
                                 "Неверный пин-код. Осталось попыток: ${5 - currentPinAttempts}",
                                 Toast.LENGTH_SHORT
                             ).show()
@@ -149,10 +150,8 @@ class MainActivity : AppCompatActivity() {
         if (editingNote != null) {
             etNote.setText(editingNote?.content)
             currentTag = editingNote?.tag ?: ""
-            tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
-        } else {
-            tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
         }
+        tvTag.text = if (currentTag.isNotEmpty()) "Tag: $currentTag" else "Tag не задан"
         
         btnTag.setOnClickListener {
             showTagInputDialog { tag ->
@@ -194,7 +193,7 @@ class MainActivity : AppCompatActivity() {
             val finalTag = if (currentTag.isBlank()) "БезТега" else currentTag
             val fileName = FileManager.generateFileName(finalTag, content)
             
-            val fileResult = FileManager.saveNote(this@MainActivity, folderName, fileName, content)
+            val fileResult = FileManager.saveNote(this@MainActivityNew, folderName, fileName, content)
             
             if (fileResult.isSuccess) {
                 val now = Date()
@@ -219,11 +218,11 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     copyToServer(fileName, content, settings, note)
                 } else {
-                    Toast.makeText(this@MainActivity, "Заметка сохранена в Смартфоне", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivityNew, "Заметка сохранена в Смартфоне", Toast.LENGTH_SHORT).show()
                     showMainMenu()
                 }
             } else {
-                Toast.makeText(this@MainActivity, "Ошибка сохранения", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivityNew, "Ошибка сохранения", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -289,7 +288,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val settings = db.settingsDao().getSettings()
             if (settings == null || settings.serverIp.isBlank()) {
-                Toast.makeText(this@MainActivity, "Настройки сервера не заданы", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivityNew, "Настройки сервера не заданы", Toast.LENGTH_SHORT).show()
                 return@launch
             }
             
@@ -297,7 +296,7 @@ class MainActivity : AppCompatActivity() {
             val notesToCopy = notes.value.filter { !it.isCopiedToServer }
             
             if (notesToCopy.isEmpty()) {
-                Toast.makeText(this@MainActivity, "Нет заметок для копирования", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivityNew, "Нет заметок для копирования", Toast.LENGTH_SHORT).show()
                 return@launch
             }
             
@@ -312,7 +311,7 @@ class MainActivity : AppCompatActivity() {
                 for (note in notesToCopy) {
                     val folderName = "Documents/${settings.storageFolder}"
                     val localFile = FileManager.saveNote(
-                        this@MainActivity,
+                        this@MainActivityNew,
                         folderName,
                         note.fileName,
                         note.content
@@ -331,7 +330,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 sshClient.disconnect()
                 Toast.makeText(
-                    this@MainActivity,
+                    this@MainActivityNew,
                     "Скопировано $successCount из ${notesToCopy.size} заметок",
                     Toast.LENGTH_LONG
                 ).show()
@@ -401,7 +400,7 @@ class MainActivity : AppCompatActivity() {
                 isFirstLaunch = false
             )
             db.settingsDao().saveSettings(settings)
-            Toast.makeText(this@MainActivity, "Настройки сохранены", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivityNew, "Настройки сохранены", Toast.LENGTH_SHORT).show()
             showMainMenu()
         }
     }
